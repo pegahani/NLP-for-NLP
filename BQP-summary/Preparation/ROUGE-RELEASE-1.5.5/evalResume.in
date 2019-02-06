@@ -1,0 +1,21 @@
+<ROUGE_EVAL version="1.5.5">
+<EVAL ID="D0801-A.M.100.A">
+<PEER-ROOT>
+/home/pegah/Documents/research/DVRC/NLP-for-NLP/BQP-summary/BQP-summary/TAC/u08/D0801/D0801-A
+</PEER-ROOT>
+<MODEL-ROOT>
+/home/pegah/Documents/research/DVRC/NLP-for-NLP/BQP-summary/BQP-summary/TAC/u08/D0801/summary
+</MODEL-ROOT>
+<INPUT-FORMAT TYPE="SPL">
+</INPUT-FORMAT>
+<PEERS>
+<P ID="72">D0801</P>
+</PEERS>
+<MODELS>
+<M ID="A">D0801-A.M.100.A.A</M>
+<M ID="C">D0801-A.M.100.A.C</M>
+<M ID="E">D0801-A.M.100.A.E</M>
+<M ID="G">D0801-A.M.100.A.G</M>
+</MODELS>
+</EVAL>
+</ROUGE_EVAL>

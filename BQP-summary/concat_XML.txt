@@ -1,0 +1,48 @@
+example in terminal:
+
+cat *.xml | egrep -v "doc" | egrep -v "xml version" > tempo.xml
+cat firstfilename.xml | grep "xml version" > alldone.xml
+cat firstfilename.xml | grep "<doc>" >> alldone.xml
+cat tempo.xml >> alldone.xml
+cat firstfilename.xml | grep "</doc>" >> alldone.xml
+
+
+
+example in terminal:
+
+cat *.xml | egrep -v "doc" | egrep -v "xml version" > tempo.xml ; cat firstfilename.xml | grep "xml version" > alldone.xml ; cat firstfilename.xml | grep "<doc>" >> alldone.xml ; cat tempo.xml >> alldone.xml ; cat firstfilename.xml | grep "</doc>" >> alldone.xml
+cat *.xml | egrep -v "doc" | egrep -v "xml version" > tempo.xml ; cat firstfilename.xml | grep "xml version" > alldone.xml ; cat firstfilename.xml | grep "<doc>" >> alldone.xml ; cat tempo.xml >> alldone.xml ; cat firstfilename.xml | grep "</doc>" >> alldone.xml
+
+AF
+
+
+
+
+
+
+P_ENG_20041029.0802.xml
+AFP_ENG_20050109.0553.xml
+AFP_ENG_20041005.0157.xml
+APW_ENG_20051118.1118.xml
+AFP_ENG_20050825.0580.xml
+AFP_ENG_20041008.0454.xml
+AFP_ENG_20050103.0426.xml
+AFP_ENG_20050226.0385.xml
+AFP_ENG_20041013.0694.xml
+LTW_ENG_20050616.0130.xml
+AFP_ENG_20041120.0501.xml
+APW_ENG_20050922.0072.xml
+AFP_ENG_20041011.0031.xml
+AFP_ENG_20050105.0054.xml
+AFP_ENG_20041017.0163.xml
+APW_ENG_20050302.0088.xml
+AFP_ENG_20050524.0649.xml
+APW_ENG_20050527.0591.xml
+AFP_ENG_20041001.0392.xml
+AFP_ENG_20041001.0452.xml
+AFP_ENG_20041221.0378.xml
+AFP_ENG_20051003.0235.xml
+AFP_ENG_20050428.0656.xml
+AFP_ENG_20050406.0049.xml
+AFP_ENG_20050208.0580.xml
+AFP_ENG_20051008.0150.xml
