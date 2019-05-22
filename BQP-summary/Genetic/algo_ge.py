@@ -1,17 +1,16 @@
-"developer: Aurelien"
-
 from random import randrange
-from Genetic.jensenshannon import CalcJS
+from jensenshannon import CalcJS
+import sys
 
-fichier_sortie = "out.txt"
-fichier_source = "concat.txt"
-taille_max = 100
+fichier_sortie = sys.argv[2]
+fichier_source = sys.argv[1]
+taille_max = 100 #3	#100
 n_mut = 1
 n_indivs = 240
 n_mutes = 80
 n_croises = 160
 n_aleas = 80
-n_gen = 150
+n_gen = 150 #150
 
 def phrases_egales (p1, p2):
 	#if len(p1["mots"]) != len(p2["mots"]):
@@ -111,20 +110,25 @@ class Individu:
 			for i in p["tokens"]:
 				if i in self.tokens:
 					self.tokens[i] += p["tokens"][i]
- 				else:
+				else:
 					self.tokens[i] = p["tokens"][i]
 		
 		self.score = calcJS.calcule_js(self)
+		self.wd = calcJS.calcule_wd(self)
 
 	def get_score(self):
+		#return self.score
+		return self.wd
+	def get_wd(self):
+		#return self.wd
 		return self.score
 
 	def print_indiv(self):
-		print ("Affichage individu : ")
+		print("Affichage individu : ")
 		for p in self.phrases:
-			print (p)
-		print ("score : "+str(self.get_score()))
-		print ("Fin Affichage individu")
+			print(p)
+		print("score : "+str(self.get_score()))
+		print("Fin Affichage individu")
 
 class Population:
 	#taille_max : la taille maximum d'un individu, phrases : le set de phrases a partir duquel on cree les indivs
@@ -160,6 +164,7 @@ class Population:
 			#print self.indivs
 			#print " "+str(i1)+" "+str(i2)
 			if self.indivs[i1].get_score() < self.indivs[i2].get_score():
+			#if self.indivs[i1].get_wd() < self.indivs[i2].get_wd():
 				parents.append(self.indivs[i1])
 			else:
 				parents.append(self.indivs[i2])
@@ -192,7 +197,7 @@ class Population:
 
 	def optimise (self, n_gen):
 		ind_max = Individu(self.phrases, self.taille_max, self.calcJS, method="copie", i1=self.get_max())
-		print ("0eme generation. "+str(len(self.indivs))+" individus. Score max : "+str(ind_max.get_score()))
+		print ("0eme generation. "+str(len(self.indivs))+" individus. Score max : "+str(ind_max.get_score())+" wd : "+str(ind_max.get_wd()))
 		for i in range(n_gen):
 			self._sel_tournoi()
 			mutations = self._genere_mutations()
@@ -211,7 +216,8 @@ class Population:
 				#print "ancien max : "+str(ind_max.get_score())+" nouveau max : "+str(max_i.get_score())
 				ind_max = Individu(self.phrases, self.taille_max, self.calcJS, method="copie", i1=max_i)
 			#self.print_gen()
-			print (str(i+1)+"eme generation. "+str(len(self.indivs))+" individus. Score max : "+str(ind_max.get_score()))
+			print (str(i+1)+"eme generation. "+str(len(self.indivs))+" individus. Score max : "+str(ind_max.get_score())+" wd : "+str(ind_max.get_wd()))
+			#ind_max.print_indiv()
 		return ind_max
 
 	def get_max (self):
@@ -251,13 +257,15 @@ for ligne in fp:
 		i = 0
 		phrases[cpt-3]["tokens"] = {}
 		for t in tab:
-			if t > 0 and cpt-3 < len(phrases):
+			#print(t)
+			#if int(t) > 0 and cpt-3 < len(phrases):
+			if cpt-3 < len(phrases):
 				#print cpt-3
-				#print t
+				#print(t)
 				phrases[cpt-3]["tokens"][i] = int(t)
 			i+=1
 	elif cpt-3 >= len(phrases):
-		print ("Phrase surnumeraire")
+		print("Phrase surnumeraire")
 	cpt += 1
 fp.close()
 
@@ -265,6 +273,7 @@ fp.close()
 population = Population(n_indivs, n_mutes, n_croises, n_aleas, n_mut, phrases, taille_max, fichier_source)
 
 ind_max = population.optimise(n_gen)
+
 
 fp = open (fichier_sortie, "w")
 for p in phrases:

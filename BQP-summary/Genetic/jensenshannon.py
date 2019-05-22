@@ -1,10 +1,8 @@
-"developer: Aurelien"
-
 import os
 import re
 import math
 import sys
-
+from scipy.stats import wasserstein_distance
 
 class CalcJS:
 	def __init__(self, fichier_source):
@@ -26,6 +24,26 @@ class CalcJS:
 			cpt += 1	
 		fp.close()
 
+	def calcule_wd(self, indiv):
+		dict_tokens_resume = indiv.tokens
+		nb_tokens_resume = 0
+		for t in dict_tokens_resume:
+			nb_tokens_resume += dict_tokens_resume[t]
+
+
+		taille_vocabulaire_source = len (self.dict_tokens_source)
+		taille_vocabulaire_resume = len (dict_tokens_resume)
+		#print(dict_tokens_resume)
+
+		#Calcul des probabilites lissees
+		self.probas_lissees_resume = self.probas_lissees (dict_tokens_resume, nb_tokens_resume, taille_vocabulaire_resume, self.delta)
+		self.probas_lissees_source = self.probas_lissees (self.dict_tokens_source, self.nb_tokens_source, taille_vocabulaire_source, self.delta)
+		#print self.probas_lissees_resume
+		#print self.probas_lissees_source
+		#return self.jensen_shannon (self.probas_lissees_resume, self.probas_lissees_source)
+		#return wasserstein_distance(self.probas_lissees_source.values(),self.probas_lissees_resume.values())
+		return wasserstein_distance(list(self.dict_tokens_source.values()),list(dict_tokens_resume.values()))
+
 	def calcule_js(self, indiv):
 		dict_tokens_resume = indiv.tokens
 		nb_tokens_resume = 0
@@ -35,13 +53,14 @@ class CalcJS:
 
 		taille_vocabulaire_source = len (self.dict_tokens_source)
 		taille_vocabulaire_resume = len (dict_tokens_resume)
+		#print(dict_tokens_resume)
 
 		#Calcul des probabilites lissees
 		self.probas_lissees_resume = self.probas_lissees (dict_tokens_resume, nb_tokens_resume, taille_vocabulaire_resume, self.delta)
 		self.probas_lissees_source = self.probas_lissees (self.dict_tokens_source, self.nb_tokens_source, taille_vocabulaire_source, self.delta)
 		#print self.probas_lissees_resume
 		#print self.probas_lissees_source
-
+		#self.wd=wasserstein_distance(self.probas_lissees_source.values(),self.probas_lissees_resume.values())
 		#return self.jensen_shannon (self.probas_lissees_resume, self.probas_lissees_source)
 		return self.jensen_shannon ()
 		
@@ -54,7 +73,10 @@ class CalcJS:
 	def jensen_shannon (self): 
 		probas_moyenne = {}
 		for token in self.probas_lissees_source: 
+			#print("token"+str(token) + str(self.probas_lissees_source.keys()))
 			probas_moyenne[token] = (self.probas_lissees_resume[token] + self.probas_lissees_source[token]) / 2
+		#print("------"+str(self.probas_lissees_resume)+"----------")
+		
 		return self.kullback_leibler(self.probas_lissees_source, probas_moyenne) + self.kullback_leibler(self.probas_lissees_resume, probas_moyenne ) / 2
 
 	def probas_lissees (self, dict_tokens, nb_tokens, taille_vocabulaire, delta ):
