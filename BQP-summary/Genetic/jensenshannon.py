@@ -41,8 +41,8 @@ class CalcJS:
 		#print self.probas_lissees_resume
 		#print self.probas_lissees_source
 		#return self.jensen_shannon (self.probas_lissees_resume, self.probas_lissees_source)
-		#return wasserstein_distance(self.probas_lissees_source.values(),self.probas_lissees_resume.values())
-		return wasserstein_distance(list(self.dict_tokens_source.values()),list(dict_tokens_resume.values()))
+		return wasserstein_distance(list(self.probas_lissees_source.values()),list(self.probas_lissees_resume.values()))
+		#return wasserstein_distance(list(self.dict_tokens_source.values()),list(dict_tokens_resume.values()))
 
 	def calcule_js(self, indiv):
 		dict_tokens_resume = indiv.tokens
@@ -63,6 +63,14 @@ class CalcJS:
 		#self.wd=wasserstein_distance(self.probas_lissees_source.values(),self.probas_lissees_resume.values())
 		#return self.jensen_shannon (self.probas_lissees_resume, self.probas_lissees_source)
 		return self.jensen_shannon ()
+
+	def calcule_monotonicity(self, indiv):
+		dict_tokens_resume = indiv.tokens
+		return self.pearson(self.dict_tokens_source,dict_tokens_resume)
+
+	def calcule_monotonicity_w(self, indiv):
+		dict_tokens_resume = indiv.tokens
+		return self.pearson_weighted(self.dict_tokens_source,dict_tokens_resume)
 		
 	def kullback_leibler (self, probas1, probas2):
 		kl = 0
@@ -88,5 +96,61 @@ class CalcJS:
 			somme_probas += probas[token]
 		#print "----------------Somme probas : "+str(somme_probas)+"----------------"
 		return probas
+
+
+
+	def pearson(self,dic1,dic2):
+		ldec1 = sorted(dic1, key=dic1.get, reverse=True)
+		#print(ldec1)
+		ldec2 = sorted(dic2, key=dic2.get, reverse=True)
+		#print(ldec2)
+		#remplacer les valeurs de ldec2 par leur index dans ldec1
+		indL1=[]
+		for l2 in ldec2:
+			indL1.append(ldec1.index(l2))
+		#print(indL1)
+		#compter le nombre d'inversions d'indexes
+		count=0
+		first = indL1.pop(0)
+		index=0
+		for l in indL1:
+			#print("first:"+str(first)+",l:"+str(l))
+			if first > l:
+				count=count+1
+			first = l
+			index = index + 1
+		return(count)
+
+	def pearson_weighted(self,dic1,dic2):
+		ldec1 = sorted(dic1, key=dic1.get, reverse=True)
+		#print(ldec1)
+		ldec2 = sorted(dic2, key=dic2.get, reverse=True)
+		#print(ldec2)
+		#remplacer les valeurs de ldec2 par leur index dans ldec1
+		indL1=[]
+		for l2 in ldec2:
+			indL1.append(ldec1.index(l2))
+		#print(indL1)
+		#compter le nombre d'inversions d'indexes
+		count=0
+		first = indL1.pop(0)
+		index=1
+		for l in indL1:
+			#print("first:"+str(first)+",l:"+str(l))
+			if first > l:
+				return l
+				#count=count+index
+			first = l
+			index = index + 1
+		return(count)
+
+
+
+#out_ws.txt
+
+
+#"python ../Genetic/algo_ge.py ../TAC/u08_corr/D0802/D0802-A/concat-D0802.txt out_ws.txt
+#	python rouge.py out_ws.txt ../TAC/u08_corr/D0802 >> stat_ws.txt
+
 
 

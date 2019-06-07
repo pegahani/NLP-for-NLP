@@ -1,16 +1,38 @@
 from random import randrange
 from jensenshannon import CalcJS
 import sys
+from subprocess import Popen, PIPE
+import subprocess
+
+# -*- coding:Utf8 -*-
 
 fichier_sortie = sys.argv[2]
 fichier_source = sys.argv[1]
 taille_max = 100 #3	#100
 n_mut = 1
 n_indivs = 240
-n_mutes = 80
-n_croises = 160
-n_aleas = 80
-n_gen = 150 #150
+n_mutes =  80
+n_croises =  160
+n_aleas =  80
+n_gen =  150 #150
+
+def exe_ROUGE():
+	cmds = "python ../Preparation/rouge.py " + fichier_sortie + " ../TAC/u08_corr/D0802 > stat_ws.txt"
+	process = subprocess.Popen(cmds, stdout=subprocess.PIPE,shell=True)
+	proc_stdout = (process.communicate()[0]).decode("utf-8")
+	return
+
+def fill_out(output_file_name, phrases, ind_max):
+	fp = open (output_file_name, "w")
+	for p in phrases:
+		if ind_max.phrase_presente(p):
+			fp.write("1 ")
+		else:
+			fp.write("0 ")
+	fp.write("\n")
+	fp.close()
+	return
+
 
 def phrases_egales (p1, p2):
 	#if len(p1["mots"]) != len(p2["mots"]):
@@ -115,6 +137,9 @@ class Individu:
 		
 		self.score = calcJS.calcule_js(self)
 		self.wd = calcJS.calcule_wd(self)
+		self.mono = calcJS.calcule_monotonicity(self)
+		self.monow = calcJS.calcule_monotonicity_w(self)
+		
 
 	def get_score(self):
 		#return self.score
@@ -122,6 +147,10 @@ class Individu:
 	def get_wd(self):
 		#return self.wd
 		return self.score
+	def get_mono(self):
+		return self.mono
+	def get_monow(self):
+		return self.monow
 
 	def print_indiv(self):
 		print("Affichage individu : ")
@@ -197,7 +226,11 @@ class Population:
 
 	def optimise (self, n_gen):
 		ind_max = Individu(self.phrases, self.taille_max, self.calcJS, method="copie", i1=self.get_max())
-		print ("0eme generation. "+str(len(self.indivs))+" individus. Score max : "+str(ind_max.get_score())+" wd : "+str(ind_max.get_wd()))
+		print ("0eme generation. "+str(len(self.indivs))+" individus. Score max : "+str(ind_max.get_score())+" wd : "+str(ind_max.get_wd())+" mono : "+str(ind_max.get_mono())+" monow : "+str(ind_max.get_monow()))
+		fill_out(fichier_sortie, self.phrases,ind_max)
+
+		exe_ROUGE()
+
 		for i in range(n_gen):
 			self._sel_tournoi()
 			mutations = self._genere_mutations()
@@ -216,7 +249,9 @@ class Population:
 				#print "ancien max : "+str(ind_max.get_score())+" nouveau max : "+str(max_i.get_score())
 				ind_max = Individu(self.phrases, self.taille_max, self.calcJS, method="copie", i1=max_i)
 			#self.print_gen()
-			print (str(i+1)+"eme generation. "+str(len(self.indivs))+" individus. Score max : "+str(ind_max.get_score())+" wd : "+str(ind_max.get_wd()))
+			print (str(i+1)+"eme generation. "+str(len(self.indivs))+" individus. Score max : "+str(ind_max.get_score())+" wd : "+str(ind_max.get_wd())+" mono : "+str(ind_max.get_mono())+" monow : "+str(ind_max.get_monow()))
+			fill_out(fichier_sortie, phrases, ind_max)
+			exe_ROUGE()
 			#ind_max.print_indiv()
 		return ind_max
 
@@ -275,11 +310,9 @@ population = Population(n_indivs, n_mutes, n_croises, n_aleas, n_mut, phrases, t
 ind_max = population.optimise(n_gen)
 
 
-fp = open (fichier_sortie, "w")
-for p in phrases:
-	if ind_max.phrase_presente(p):
-		fp.write("1 ")
-	else:
-		fp.write("0 ")
-fp.write("\n")
-fp.close()
+fill_out(fichier_sortie, phrases)
+
+
+
+
+
