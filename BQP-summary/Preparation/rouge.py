@@ -12,7 +12,9 @@ import subprocess
 # python3.6 rouge.py 'output file ([0 1 0 1 1 0 0 0 ])' 'address to the TAC subject'
 #python3.6 rouge.py out.txt ..	AC/u08_corr/D0827
 
-path = os.getcwd() + '	AC/u08/'
+path = os.getcwd() + 'TAC/u08/'
+adress = "/home/pegah/Documents/research/DVRC/NLP-for-NLP/NLP-for-NLP/BQP-summary/Preparation/ROUGE-RELEASE-1.5.5"
+adress_2 = "/home/pegah/Documents/research/DVRC/NLP-for-NLP/NLP-for-NLP/BQP-summary/TAC/u08_corr"
 
 class rouge:
 
@@ -67,18 +69,22 @@ class rouge:
 		self.result_text = self.source_path + self.name
 		return
 
-	def make_in_file(self):
+	def make_in_file(self, adress_ = None):
 
 		"""
 		this code generates a .in file (xml file) to be sent to the ROUGE method.
 		:return:
 		"""
 
-		"gold standards summaries address"
-		model_root = os.path.abspath(self.source_path) + '/summary'
+		if adress_ is None:
+			"gold standards summaries address"
+			model_root = os.path.abspath(self.source_path) + '/summary'
+			"proposed summary address"
+			peer_root = os.path.abspath(self.source_path)
 
-		"proposed summary address"
-		peer_root = os.path.abspath(self.source_path)
+		else:
+			model_root = adress_2 + '/summary'
+			peer_root = adress_2
 
 		file = peer_root + '/EvalResume.in'
 		Path(file).touch()
@@ -107,21 +113,18 @@ class rouge:
 
 		return
 
-	def compute_ROUGE(self, path = None):
-		print('now here')
+	def compute_ROUGE(self, pathp = None):
 
 		path_ = os.getcwd()
 		print(self.source_path)
+		in_file = os.path.abspath(self.source_path) + '/' + 'EvalResume.in'
 
-		if path is None:
-			print('the other one')
-			in_file = os.path.abspath(self.source_path) + '/' + 'EvalResume.in'
+		if pathp is None:
+			#in_file = os.path.abspath(self.source_path) + '/' + 'EvalResume.in'
 			cmds = 'cd ' + path_+"/ROUGE-RELEASE-1.5.5/" + " ; ""./runrouge_opt.sh " + in_file
 		else:
-			print('we are here')
-			in_file = path + '/' + 'EvalResume.in'
-			cmds = 'cd ' + path + " ; ""./runrouge_opt.sh " + in_file
-
+			#in_file = pathp + '/' + 'EvalResume.in'
+			cmds = 'cd ' + pathp + " ; ""./runrouge_opt.sh " + in_file
 
 		process = subprocess.Popen(cmds, stdout=subprocess.PIPE, shell=True)
 		proc_stdout = (process.communicate()[0]).decode("utf-8")
@@ -132,18 +135,18 @@ class rouge:
 
 
 def main(arg1, arg2):
+
 	# parse arguments using optparse or argparse or what have you
 	r = rouge(source_xml= arg2, decode_text= arg1)
 	r.BQNout_to_text()
 	r.make_in_file()
-	r.compute_ROUGE("~/Documents/git/NLP-for-NLP/BQP-summary/Preparation/ROUGE-RELEASE-1.5.5")
+	r.compute_ROUGE(adress)
 
 if __name__ == '__main__':
 
 	decode_text = sys.argv[1]
 	source_xml = sys.argv[2]
 	#topic = sys.argv[3]
-
 	main(decode_text, source_xml)
 
 

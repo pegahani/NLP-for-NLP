@@ -16,10 +16,23 @@ n_croises =  160
 n_aleas =  80
 n_gen =  150 #150
 
-def exe_ROUGE():
-	cmds = "python ../Preparation/rouge.py " + fichier_sortie + " ../TAC/u08_corr/D0802 > stat_ws.txt"
+open("stat_ws.txt", "w").close()
+
+def exe_ROUGE(iter):
+	open("tempo.txt", "w").close()
+	cmds = "python3.6 ../Preparation/rouge.py " + fichier_sortie + " ../TAC/u08_corr/D0802 >> tempo.txt"
 	process = subprocess.Popen(cmds, stdout=subprocess.PIPE,shell=True)
 	proc_stdout = (process.communicate()[0]).decode("utf-8")
+	return proc_stdout
+
+def write_to_stat(output, is_tempo):
+	if not is_tempo:
+		cmds = "echo " + output + " >> stat_ws.txt"
+	else:
+		cmds = "cat stat_ws.txt tempo.txt > tempo2.txt" + " ; ""cat tempo2.txt > stat_ws.txt"
+
+	process = subprocess.Popen(cmds, stdout=subprocess.PIPE, shell=True)
+
 	return
 
 def fill_out(output_file_name, phrases, ind_max):
@@ -225,13 +238,21 @@ class Population:
 		return indivs_mutes
 
 	def optimise (self, n_gen):
+		iter = 0
 		ind_max = Individu(self.phrases, self.taille_max, self.calcJS, method="copie", i1=self.get_max())
-		print ("0eme generation. "+str(len(self.indivs))+" individus. Score max : "+str(ind_max.get_score())+" wd : "+str(ind_max.get_wd())+" mono : "+str(ind_max.get_mono())+" monow : "+str(ind_max.get_monow()))
+		#print ("0eme generation. "+str(len(self.indivs))+" individus. Score max : "+str(ind_max.get_score())+" wd : "+str(ind_max.get_wd())+" mono : "+str(ind_max.get_mono())+" monow : "+str(ind_max.get_monow()))
 		fill_out(fichier_sortie, self.phrases,ind_max)
 
-		exe_ROUGE()
+		print(iter)
+		roug_result = exe_ROUGE(iter= iter)
+
+		out = "0eme generation. "+str(len(self.indivs))+" individus. Score max : "+str(ind_max.get_score())+" wd : "+str(ind_max.get_wd())+" mono : "+str(ind_max.get_mono())+" monow : "+str(ind_max.get_monow())
+		write_to_stat(out, is_tempo= False)
+		write_to_stat(roug_result, is_tempo= True)
+
 
 		for i in range(n_gen):
+			iter += 1
 			self._sel_tournoi()
 			mutations = self._genere_mutations()
 			#print str(len(mutations)) + " indivs mutes"
@@ -249,9 +270,16 @@ class Population:
 				#print "ancien max : "+str(ind_max.get_score())+" nouveau max : "+str(max_i.get_score())
 				ind_max = Individu(self.phrases, self.taille_max, self.calcJS, method="copie", i1=max_i)
 			#self.print_gen()
-			print (str(i+1)+"eme generation. "+str(len(self.indivs))+" individus. Score max : "+str(ind_max.get_score())+" wd : "+str(ind_max.get_wd())+" mono : "+str(ind_max.get_mono())+" monow : "+str(ind_max.get_monow()))
 			fill_out(fichier_sortie, phrases, ind_max)
-			exe_ROUGE()
+
+			print(iter)
+			roug_result = exe_ROUGE(iter= iter)
+			outi = str(i+1)+"eme generation. "+str(len(self.indivs))+" individus. Score max : "+str(ind_max.get_score())+\
+				   " wd : "+str(ind_max.get_wd())+" mono : "+str(ind_max.get_mono())+" monow : "+str(ind_max.get_monow())
+
+			write_to_stat(outi, is_tempo=False)
+			write_to_stat(roug_result, is_tempo=True)
+
 			#ind_max.print_indiv()
 		return ind_max
 
@@ -306,11 +334,8 @@ fp.close()
 
 #Creation de la population
 population = Population(n_indivs, n_mutes, n_croises, n_aleas, n_mut, phrases, taille_max, fichier_source)
-
 ind_max = population.optimise(n_gen)
-
-
-fill_out(fichier_sortie, phrases)
+fill_out(fichier_sortie, phrases, ind_max)
 
 
 
