@@ -18,12 +18,17 @@ n_gen =  150 #150
 
 open("stat_ws.txt", "w").close()
 
-def exe_ROUGE(iter):
+def exe_ROUGE():
 	open("tempo.txt", "w").close()
 	cmds = "python3.6 ../Preparation/rouge.py " + fichier_sortie + " ../TAC/u08_corr/D0802 >> tempo.txt"
 	process = subprocess.Popen(cmds, stdout=subprocess.PIPE,shell=True)
 	proc_stdout = (process.communicate()[0]).decode("utf-8")
-	return proc_stdout
+
+	with open("tempo.txt", "r") as file:
+		lastline = (list(file)[-2])
+		rouge_ = float(lastline[-8:-1])
+	#the first output is the F measure for ROUGE 2 and the second is the complete output of ROUGE measure. 
+	return (rouge_, proc_stdout)
 
 def write_to_stat(output, is_tempo):
 	if not is_tempo:
@@ -244,7 +249,8 @@ class Population:
 		fill_out(fichier_sortie, self.phrases,ind_max)
 
 		print(iter)
-		roug_result = exe_ROUGE(iter= iter)
+		tempo = exe_ROUGE()
+		roug_result = tempo[1]
 
 		out = "0eme generation. "+str(len(self.indivs))+" individus. Score max : "+str(ind_max.get_score())+" wd : "+str(ind_max.get_wd())+" mono : "+str(ind_max.get_mono())+" monow : "+str(ind_max.get_monow())
 		write_to_stat(out, is_tempo= False)
@@ -273,7 +279,9 @@ class Population:
 			fill_out(fichier_sortie, phrases, ind_max)
 
 			print(iter)
-			roug_result = exe_ROUGE(iter= iter)
+			tempo = exe_ROUGE()
+			roug_result = tempo[1]
+
 			outi = str(i+1)+"eme generation. "+str(len(self.indivs))+" individus. Score max : "+str(ind_max.get_score())+\
 				   " wd : "+str(ind_max.get_wd())+" mono : "+str(ind_max.get_mono())+" monow : "+str(ind_max.get_monow())
 
