@@ -1,0 +1,11 @@
+#!/bin/bash
+for i in {1..9}
+do
+   python algo_ge.py ../TAC/u08_corr/D080$i/D080$i-A/concat-D080$i.txt out_js_0$i.txt
+done
+
+for i in {10..48}
+do
+   python algo_ge.py ../TAC/u08_corr/D08$i/D08$i-A/concat-D08$i.txt out_js_$i.txt
+done
+
