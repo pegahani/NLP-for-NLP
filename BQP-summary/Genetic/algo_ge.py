@@ -8,6 +8,12 @@ import subprocess
 
 fichier_sortie = sys.argv[2]
 fichier_source = sys.argv[1]
+
+tt = fichier_source.split('/')
+adress = '/'.join(tt[0:4])
+which_tac = tt[-1][-6:-4]
+file_stats = "stat_ws"+which_tac+".txt"
+
 taille_max = 100 #3	#100
 n_mut = 1
 n_indivs = 240
@@ -16,25 +22,25 @@ n_croises =  160
 n_aleas =  80
 n_gen =  150 #150
 
-open("stat_ws.txt", "w").close()
+open(file_stats, "w").close()
 
 def exe_ROUGE():
-	open("tempo.txt", "w").close()
-	cmds = "python3.6 ../Preparation/rouge.py " + fichier_sortie + " ../TAC/u08_corr/D0802 >> tempo.txt"
+	open("tempo"+which_tac+".txt", "w").close()
+	cmds = "python3.6 ../Preparation/rouge.py " + fichier_sortie + " " + adress + " >> tempo"+which_tac+".txt"
 	process = subprocess.Popen(cmds, stdout=subprocess.PIPE,shell=True)
 	proc_stdout = (process.communicate()[0]).decode("utf-8")
 
-	with open("tempo.txt", "r") as file:
+	with open("tempo"+which_tac+".txt", "r") as file:
 		lastline = (list(file)[-2])
 		rouge_ = float(lastline[-8:-1])
-	#the first output is the F measure for ROUGE 2 and the second is the complete output of ROUGE measure. 
+	#the first output is the F measure for ROUGE 2 and the second is the complete output of ROUGE measure.
 	return (rouge_, proc_stdout)
 
 def write_to_stat(output, is_tempo):
 	if not is_tempo:
-		cmds = "echo " + output + " >> stat_ws.txt"
+		cmds = "echo " + output + " >> " + "stat_ws"+which_tac+".txt"
 	else:
-		cmds = "cat stat_ws.txt tempo.txt > tempo2.txt" + " ; ""cat tempo2.txt > stat_ws.txt"
+		cmds = "cat " + "stat_ws"+which_tac+".txt" + " tempo"+which_tac+".txt > tempo2"+which_tac+".txt" + " ; ""cat tempo2"+which_tac+".txt > " + "stat_ws"+which_tac+".txt"
 
 	process = subprocess.Popen(cmds, stdout=subprocess.PIPE, shell=True)
 
@@ -252,9 +258,9 @@ class Population:
 		tempo = exe_ROUGE()
 		roug_result = tempo[1]
 
-		out = "0eme generation. "+str(len(self.indivs))+" individus. Score max : "+str(ind_max.get_score())+" wd : "+str(ind_max.get_wd())+" mono : "+str(ind_max.get_mono())+" monow : "+str(ind_max.get_monow())
+		out = "0eme generation. "+str(len(self.indivs))+" individus. Score max : "+str(ind_max.get_score())+ " Rouge_2 F : " + str(tempo[0]) +" wd : "+str(ind_max.get_wd())+" mono : "+str(ind_max.get_mono())+" monow : "+str(ind_max.get_monow())
 		write_to_stat(out, is_tempo= False)
-		write_to_stat(roug_result, is_tempo= True)
+		#write_to_stat(roug_result, is_tempo= True)
 
 
 		for i in range(n_gen):
@@ -282,11 +288,11 @@ class Population:
 			tempo = exe_ROUGE()
 			roug_result = tempo[1]
 
-			outi = str(i+1)+"eme generation. "+str(len(self.indivs))+" individus. Score max : "+str(ind_max.get_score())+\
-				   " wd : "+str(ind_max.get_wd())+" mono : "+str(ind_max.get_mono())+" monow : "+str(ind_max.get_monow())
+			outi = str(i+1)+"eme generation. "+str(len(self.indivs))+" individus. Score max : "+str(ind_max.get_score())\
+				   + " Rouge_2 F : " + str(tempo[0]) + " wd : "+str(ind_max.get_wd())+" mono : "+str(ind_max.get_mono())+" monow : "+str(ind_max.get_monow())
 
 			write_to_stat(outi, is_tempo=False)
-			write_to_stat(roug_result, is_tempo=True)
+			#write_to_stat(roug_result, is_tempo=True)
 
 			#ind_max.print_indiv()
 		return ind_max
